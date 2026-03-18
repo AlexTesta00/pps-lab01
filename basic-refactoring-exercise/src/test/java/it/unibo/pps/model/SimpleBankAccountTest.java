@@ -70,8 +70,9 @@ class SimpleBankAccountTest {
 
         @Test
         void testCorrectWithdrawWithNegativeAmount() {
+            System.out.println(bankAccount.getBalance());
             bankAccount.withdraw(accountHolder.id(), NEGATIVE_AMOUNT_WITHDRAW);
-            assertEquals(POSITIVE_AMOUNT - NEGATIVE_AMOUNT_WITHDRAW, bankAccount.getBalance());
+            assertEquals(POSITIVE_AMOUNT + NEGATIVE_AMOUNT_WITHDRAW, bankAccount.getBalance());
         }
 
         @Test

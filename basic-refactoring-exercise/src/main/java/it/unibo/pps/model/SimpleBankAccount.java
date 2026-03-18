@@ -21,22 +21,35 @@ public class SimpleBankAccount implements BankAccount {
     }
 
     @Override
-    public void deposit(final int userID, final double amount) {
-        if (checkUser(userID)) {
-            this.balance += amount;
+    public void deposit(final int userID, final double amount) throws IllegalArgumentException {
+        if (!checkUser(userID)) {
+            throw new IllegalArgumentException("The user is not the account holder");
         }
+        if (!isAmountPositive(amount)) {
+            throw new IllegalArgumentException("The amount must be positive");
+        }
+        this.balance += amount;
     }
 
     @Override
-    public void withdraw(final int userID, final double amount) {
-        if (checkUser(userID) && isWithdrawAllowed(amount)) {
-            this.balance -= amount;
+    public void withdraw(final int userID, final double amount) throws IllegalArgumentException {
+        if (!checkUser(userID)) {
+            throw new IllegalArgumentException("The user is not the account holder");
         }
+        if (isAmountPositive(amount)) {
+            throw new IllegalArgumentException("The amount must be negative");
+        }
+        if(!isWithdrawAllowed(amount)){
+            throw new IllegalArgumentException("The balance is not sufficient for the withdrawal");
+        }
+        this.balance += amount;
     }
 
     private boolean isWithdrawAllowed(final double amount){
-        return this.balance >= amount;
+        return this.balance + amount >= 0;
     }
+
+    private boolean isAmountPositive(final double amount){ return amount > 0; }
 
     private boolean checkUser(final int id) {
         return this.holder.id() == id;

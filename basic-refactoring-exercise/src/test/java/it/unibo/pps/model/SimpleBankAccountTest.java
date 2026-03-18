@@ -58,7 +58,7 @@ class SimpleBankAccountTest {
     }
 
     @Nested
-    class WithdrawTest{
+    class TestWithdraw{
 
         private final int NEGATIVE_AMOUNT_WITHDRAW = -70;
         private final int POSITIVE_AMOUNT_WITHDRAW = 70;
@@ -87,6 +87,49 @@ class SimpleBankAccountTest {
         void testWrongWithdrawWithAnotherBankAccountId() {
             assertAll(
                     () -> assertThrows(IllegalArgumentException.class, () -> bankAccount.withdraw(ANOTHER_BANK_ACCOUNT_ID, NEGATIVE_AMOUNT_WITHDRAW)),
+                    () -> assertEquals(POSITIVE_AMOUNT, bankAccount.getBalance())
+            );
+        }
+    }
+
+    @Nested
+    class TestBankAccountWithFee{
+        private final int FEE = 1;
+        private final int NEGATIVE_WITHDRAW = -70;
+        private final int POSITIVE_WITHDRAW = -NEGATIVE_WITHDRAW;
+
+        @BeforeEach
+        void setUp(){
+            bankAccount = new SimpleBankAccountWithFee(accountHolder, INITIAL_BALANCE, FEE);
+            bankAccount.deposit(accountHolder.id(), POSITIVE_AMOUNT);
+        }
+
+        @Test
+        void testCorrectWithdrawWithNegativeAmount() {
+            bankAccount.withdraw(accountHolder.id(), NEGATIVE_WITHDRAW);
+            assertEquals(POSITIVE_AMOUNT + NEGATIVE_WITHDRAW - FEE, bankAccount.getBalance());
+        }
+
+        @Test
+        void testWrongWithdrawWithPositiveAmount() {
+            assertAll(
+                    () -> assertThrows(IllegalArgumentException.class, () -> bankAccount.withdraw(accountHolder.id(), POSITIVE_WITHDRAW)),
+                    () -> assertEquals(POSITIVE_AMOUNT, bankAccount.getBalance())
+            );
+        }
+
+        @Test
+        void testWrongWithdrawWithAnotherBankAccountId() {
+            assertAll(
+                    () -> assertThrows(IllegalArgumentException.class, () -> bankAccount.withdraw(ANOTHER_BANK_ACCOUNT_ID, NEGATIVE_AMOUNT)),
+                    () -> assertEquals(POSITIVE_AMOUNT, bankAccount.getBalance())
+            );
+        }
+
+        @Test
+        void testWrongWithDrawExceedsFee(){
+            assertAll(
+                    () -> assertThrows(IllegalArgumentException.class, () -> bankAccount.withdraw(accountHolder.id(), -POSITIVE_AMOUNT)),
                     () -> assertEquals(POSITIVE_AMOUNT, bankAccount.getBalance())
             );
         }

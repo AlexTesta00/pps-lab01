@@ -2,8 +2,8 @@ package it.unibo.pps.model;
 
 public class SimpleBankAccountWithFee implements BankAccount{
 
-    private int fee;
-    private SimpleBankAccount simpleBankAccount;
+    private final int fee;
+    private final SimpleBankAccount simpleBankAccount;
 
     public SimpleBankAccountWithFee(final AccountHolder accountHolder, final double balance, final int fee){
         this.simpleBankAccount = new SimpleBankAccount(accountHolder, balance);

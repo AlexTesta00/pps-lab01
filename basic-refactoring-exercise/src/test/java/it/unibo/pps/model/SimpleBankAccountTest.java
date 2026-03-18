@@ -8,44 +8,86 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class SimpleBankAccountTest {
 
+    private final double INITIAL_BALANCE = 0;
+    private final int POSITIVE_AMOUNT = 100;
+    private final int NEGATIVE_AMOUNT = -100;
+    private final int ANOTHER_BANK_ACCOUNT_ID = 2;
+
     private AccountHolder accountHolder;
     private BankAccount bankAccount;
 
     @BeforeEach
     void beforeEach(){
-        accountHolder = new AccountHolder("Mario", "Rossi", 1);
-        bankAccount = new SimpleBankAccount(accountHolder, 0);
+        String ACCOUNT_HOLDER_NAME = "Mario";
+        String ACCOUNT_HOLDER_SURNAME = "Rossi";
+        int ACCOUNT_HOLDER_ID = 1;
+        accountHolder = new AccountHolder(ACCOUNT_HOLDER_NAME, ACCOUNT_HOLDER_SURNAME, ACCOUNT_HOLDER_ID);
+        bankAccount = new SimpleBankAccount(accountHolder, INITIAL_BALANCE);
     }
 
     @Test
     void testInitialBalance() {
-        assertEquals(0, bankAccount.getBalance());
+        assertEquals(INITIAL_BALANCE, bankAccount.getBalance());
     }
 
-    @Test
-    void testDeposit() {
-        bankAccount.deposit(accountHolder.id(), 100);
-        assertEquals(100, bankAccount.getBalance());
+    @Nested
+    class TestDeposit{
+
+        @BeforeEach
+        void setup(){
+            bankAccount.deposit(accountHolder.id(), POSITIVE_AMOUNT);
+        }
+
+        @Test
+        void testCorrectDepositWithPositiveAmount() {
+            assertEquals(POSITIVE_AMOUNT, bankAccount.getBalance());
+        }
+
+        @Test
+        void testWrongDepositWithNegativeAmount() {
+            assertThrows(IllegalArgumentException.class, () -> bankAccount.deposit(accountHolder.id(), NEGATIVE_AMOUNT));
+        }
+
+        @Test
+        void testWrongDepositWithAnotherBankAccountId() {
+            assertAll(
+                    () -> assertThrows(IllegalArgumentException.class, () -> bankAccount.deposit(ANOTHER_BANK_ACCOUNT_ID, POSITIVE_AMOUNT)),
+                    () -> assertEquals(POSITIVE_AMOUNT, bankAccount.getBalance())
+            );
+        }
     }
 
-    @Test
-    void testWrongDeposit() {
-        bankAccount.deposit(accountHolder.id(), 100);
-        bankAccount.deposit(2, 50);
-        assertEquals(100, bankAccount.getBalance());
-    }
+    @Nested
+    class WithdrawTest{
 
-    @Test
-    void testWithdraw() {
-        bankAccount.deposit(accountHolder.id(), 100);
-        bankAccount.withdraw(accountHolder.id(), 70);
-        assertEquals(30, bankAccount.getBalance());
-    }
+        private final int NEGATIVE_AMOUNT_WITHDRAW = -70;
+        private final int POSITIVE_AMOUNT_WITHDRAW = 70;
 
-    @Test
-    void testWrongWithdraw() {
-        bankAccount.deposit(accountHolder.id(), 100);
-        bankAccount.withdraw(2, 70);
-        assertEquals(100, bankAccount.getBalance());
+        @BeforeEach
+        void setUp(){
+            bankAccount.deposit(accountHolder.id(), POSITIVE_AMOUNT);
+        }
+
+        @Test
+        void testCorrectWithdrawWithNegativeAmount() {
+            bankAccount.withdraw(accountHolder.id(), NEGATIVE_AMOUNT_WITHDRAW);
+            assertEquals(POSITIVE_AMOUNT - NEGATIVE_AMOUNT_WITHDRAW, bankAccount.getBalance());
+        }
+
+        @Test
+        void testWrongWithdrawWithPositiveAmount() {
+            assertAll(
+                    () -> assertThrows(IllegalArgumentException.class, () -> bankAccount.withdraw(accountHolder.id(), POSITIVE_AMOUNT_WITHDRAW)),
+                    () -> assertEquals(POSITIVE_AMOUNT, bankAccount.getBalance())
+            );
+        }
+
+        @Test
+        void testWrongWithdrawWithAnotherBankAccountId() {
+            assertAll(
+                    () -> assertThrows(IllegalArgumentException.class, () -> bankAccount.withdraw(ANOTHER_BANK_ACCOUNT_ID, NEGATIVE_AMOUNT_WITHDRAW)),
+                    () -> assertEquals(POSITIVE_AMOUNT, bankAccount.getBalance())
+            );
+        }
     }
 }

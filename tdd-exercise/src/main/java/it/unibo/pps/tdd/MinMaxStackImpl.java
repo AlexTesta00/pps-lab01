@@ -1,7 +1,6 @@
 package it.unibo.pps.tdd;
 
 import java.util.ArrayList;
-import java.util.EmptyStackException;
 import java.util.List;
 
 public class MinMaxStackImpl implements MinMaxStack {
